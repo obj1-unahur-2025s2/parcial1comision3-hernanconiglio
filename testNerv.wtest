@@ -1,0 +1,9 @@
+import nerv.*
+
+describe "test cuartel nerv" {
+
+  test "test 1" {
+    assert.that(true)
+  }
+
+}
