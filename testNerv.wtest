@@ -1,9 +1,84 @@
+import  evas.*
+import pilotos.*
 import nerv.*
 
-describe "test cuartel nerv" {
+describe "test del cuartel NERV" {
 
-  test "test 1" {
-    assert.that(true)
+    method initialize() {
+        nerv.agregarEva(eva01)
+        nerv.agregarEva(eva02)
+        nerv.agregarEva(eva00)
+        nerv.agregarPiloto(asuka)
+        nerv.agregarPiloto(shinji)
+        nerv.agregarPiloto(rei)
+    }
+
+  test "El EVA-01 no puede usarse más de 3 veces seguidas sin recargarse" {
+    nerv.sincronizar(eva01, asuka)
+    assert.equals(7, asuka.entrenamiento())
+    nerv.sincronizar(eva01, asuka)
+    assert.equals(9, asuka.entrenamiento())
+    nerv.sincronizar(eva01, asuka)
+    assert.equals(11, asuka.entrenamiento())
+    nerv.sincronizar(eva01, asuka)
+    assert.equals(11, asuka.entrenamiento())
   }
 
+  test "En modo ataque, el EVA-02 otorga 3 de entrenamiento y consume 20 de energía." {
+    eva02.cambiarModoDeCombate(ataque)
+    nerv.sincronizar(eva02, asuka)
+    assert.equals(80, eva02.energia())
+    assert.equals(3, eva02.puntosQueOtorga())
+  }
+
+  test "Shinji puede al inicio sincronizar con el EVA-00" {
+    nerv.sincronizar(eva00, shinji)
+    assert.equals(3, shinji.entrenamiento())
+  }
+
+  test "Rei no puede realizar más de 5 sincronizaciones en total" {
+    eva00.agregarAt(20)
+    nerv.sincronizar(eva00, rei)
+    assert.equals(1, rei.entrenamiento())
+    nerv.sincronizar(eva00, rei)
+    assert.equals(2, rei.entrenamiento())
+    nerv.sincronizar(eva00, rei)
+    assert.equals(3, rei.entrenamiento())
+    nerv.sincronizar(eva00, rei)
+    assert.equals(4, rei.entrenamiento())
+    nerv.sincronizar(eva00, rei)
+    assert.equals(5, rei.entrenamiento())
+    nerv.sincronizar(eva00, rei)
+    assert.equals(5, rei.entrenamiento())
+  }
+
+    test "El cálculo del promedio de puntos de entrenamiento de los pilotos es correcto." {
+    eva00.agregarAt(20)
+    nerv.sincronizar(eva00, rei)
+    nerv.sincronizar(eva00, rei)
+    nerv.sincronizar(eva00, rei)
+    nerv.sincronizar(eva00, rei)
+    nerv.sincronizar(eva00, rei)
+    nerv.sincronizar(eva01, asuka)
+    nerv.sincronizar(eva02,shinji)
+    console.println(rei.entrenamiento())
+    console.println(asuka.entrenamiento())
+    console.println(shinji.entrenamiento())
+    assert.equals((3+5+7)/3, nerv.promedioPuntosEntrenamiento())
+    }
+
+    test "Verificar que cada EVA puede ser usado por al menos un piloto registrado en el cuartel" {
+        eva00.agregarAt(20)
+        assert.that(nerv.todosLosPilotosPuedenSincronizar())
+    }
+
+    test "Que un piloto se considera satisfecho según su definición personal." {
+        assert.notThat(shinji.estaSatisfecho(nerv.evas()))
+        nerv.sincronizar(eva00,shinji)
+        shinji.descansar()
+        nerv.sincronizar(eva02,shinji)
+        shinji.descansar()
+        nerv.sincronizar(eva01,shinji)
+        assert.that(shinji.estaSatisfecho(nerv.evas()))
+    }
 }
